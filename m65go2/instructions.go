@@ -26,7 +26,7 @@ const (
 	Branched
 )
 
-// Returns a new, empty InstructionTable
+// NewInstructionTable returns a new, empty InstructionTable
 func NewInstructionTable() InstructionTable {
 	instructions := InstructionTable{
 		opcodes: make([]*Instruction, 0x100),
@@ -71,7 +71,7 @@ func NewInstructionTable() InstructionTable {
 	return instructions
 }
 
-// Executes an instruction in the InstructionTable, returns number of
+// Execute; an instruction in the InstructionTable, returns number of
 // cycles taken to execute
 func (instructions InstructionTable) Execute(cpu *M6502, opcode OpCode) (cycles uint16) {
 	inst := instructions.opcodes[opcode]
@@ -95,17 +95,17 @@ func (instructions InstructionTable) Execute(cpu *M6502, opcode OpCode) (cycles 
 	return
 }
 
-// Adds an instruction to the InstructionTable
+// AddInstruction adds an instruction to the InstructionTable
 func (instructions InstructionTable) AddInstruction(inst *Instruction) {
 	instructions.opcodes[inst.OpCode] = inst
 }
 
-// Removes any instruction with the given opcode
+// RemoveInstruction removes any instruction with the given opcode
 func (instructions InstructionTable) RemoveInstruction(opcode OpCode) {
 	instructions.opcodes[opcode] = nil
 }
 
-// Adds the 6502 CPU's instruction set to the InstructionTable.
+// InitInstructions adds the 6502 CPU's instruction set to the InstructionTable.
 func (instructions InstructionTable) InitInstructions() {
 	// LDA
 

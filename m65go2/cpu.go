@@ -31,7 +31,7 @@ type Registers struct {
 	PC uint16 // program counter
 }
 
-// Creates a new set of Registers.  All registers are initialized to
+// NewRegisters creates a new set of Registers.  All registers are initialized to
 // 0.
 func NewRegisters() (reg Registers) {
 	reg = Registers{}
@@ -39,7 +39,7 @@ func NewRegisters() (reg Registers) {
 	return
 }
 
-// Resets all registers.  Register P is initialized with only the I
+// Reset; all registers.  Register P is initialized with only the I
 // bit set, SP is initialized to 0xfd, PC is initialized to 0xfffc
 // (the RESET vector) and all other registers are initialized to 0.
 func (reg *Registers) Reset() {
@@ -51,7 +51,7 @@ func (reg *Registers) Reset() {
 	reg.PC = 0xfffc
 }
 
-// Prints the values of each register to os.Stderr.
+// String prints the values of each register to os.Stderr.
 func (reg *Registers) String() string {
 	return fmt.Sprintf("A:%02X X:%02X Y:%02X P:%02X SP:%02X", reg.A, reg.X, reg.Y, reg.P, reg.SP)
 }
@@ -101,7 +101,7 @@ type M6502 struct {
 	breakError   bool
 }
 
-// Returns a pointer to a new CPU with the given Memory.
+// NewM6502 returns a pointer to a new CPU with the given Memory.
 func NewM6502(mem Memory) *M6502 {
 	instructions := NewInstructionTable()
 	instructions.InitInstructions()
@@ -119,7 +119,7 @@ func NewM6502(mem Memory) *M6502 {
 	}
 }
 
-// Resets the CPU by resetting both the registers and memory.
+// Reset; the CPU by resetting both the registers and memory.
 func (cpu *M6502) Reset() {
 	cpu.Registers.Reset()
 	cpu.Memory.Reset()
@@ -238,7 +238,7 @@ func (b BrkOpCodeError) Error() string {
 	return fmt.Sprintf("Executed BRK opcode")
 }
 
-// Executes the instruction pointed to by the PC register in the
+// Execute; the instruction pointed to by the PC register in the
 // number of cycles as returned by the instruction's Exec function.
 // Returns the number of cycles executed and any error (such as
 // BadOpCodeError).
@@ -278,7 +278,7 @@ func (cpu *M6502) Execute() (cycles uint16, error error) {
 	return cycles, nil
 }
 
-// Executes instruction until Execute() returns an error.
+// Run executes instruction until Execute() returns an error.
 func (cpu *M6502) Run() (err error) {
 	for {
 		if _, err = cpu.Execute(); err != nil {
@@ -673,7 +673,7 @@ func (cpu *M6502) load(address uint16, register *uint8) {
 	}
 }
 
-// Loads a byte of memory into the accumulator setting the zero and
+// Lda loads a byte of memory into the accumulator setting the zero and
 // negative flags as appropriate.
 //
 //         C 	Carry Flag 	  Not affected
@@ -687,7 +687,7 @@ func (cpu *M6502) Lda(address uint16) {
 	cpu.load(address, &cpu.Registers.A)
 }
 
-// Unofficial
+// Lax; Unofficial
 //
 // Loads a byte of memory into the accumulator and X setting the zero
 // and negative flags as appropriate.
@@ -704,7 +704,7 @@ func (cpu *M6502) Lax(address uint16) {
 	cpu.load(address, &cpu.Registers.A)
 }
 
-// Loads a byte of memory into the X register setting the zero and
+// Ldx loads a byte of memory into the X register setting the zero and
 // negative flags as appropriate.
 //
 //         C 	Carry Flag 	  Not affected
@@ -718,7 +718,7 @@ func (cpu *M6502) Ldx(address uint16) {
 	cpu.load(address, &cpu.Registers.X)
 }
 
-// Loads a byte of memory into the Y register setting the zero and
+// Ldy loads a byte of memory into the Y register setting the zero and
 // negative flags as appropriate.
 //
 //         C 	Carry Flag 	  Not affected
@@ -745,12 +745,12 @@ func (cpu *M6502) store(address uint16, value uint8) {
 	}
 }
 
-// Unofficial
+// Sax; Unofficial
 func (cpu *M6502) Sax(address uint16) {
 	cpu.store(address, cpu.Registers.A&cpu.Registers.X)
 }
 
-// Stores the contents of the accumulator into memory.
+// Sta stores the contents of the accumulator into memory.
 //
 //         C 	Carry Flag 	  Not affected
 //         Z 	Zero Flag 	  Not affected
@@ -763,7 +763,7 @@ func (cpu *M6502) Sta(address uint16) {
 	cpu.store(address, cpu.Registers.A)
 }
 
-// Stores the contents of the X register into memory.
+// Stx stores the contents of the X register into memory.
 //
 //         C 	Carry Flag 	  Not affected
 //         Z 	Zero Flag 	  Not affected
@@ -776,7 +776,7 @@ func (cpu *M6502) Stx(address uint16) {
 	cpu.store(address, cpu.Registers.X)
 }
 
-// Stores the contents of the Y register into memory.
+// Sty stores the contents of the Y register into memory.
 //
 //         C 	Carry Flag 	  Not affected
 //         Z 	Zero Flag 	  Not affected
@@ -793,7 +793,7 @@ func (cpu *M6502) transfer(from uint8, to *uint8) {
 	*to = cpu.setZNFlags(from)
 }
 
-// Copies the current contents of the accumulator into the X register
+// Tax copies the current contents of the accumulator into the X register
 // and sets the zero and negative flags as appropriate.
 //
 //         C 	Carry Flag 	  Not affected
@@ -807,7 +807,7 @@ func (cpu *M6502) Tax() {
 	cpu.transfer(cpu.Registers.A, &cpu.Registers.X)
 }
 
-// Copies the current contents of the accumulator into the Y register
+// Tay copies the current contents of the accumulator into the Y register
 // and sets the zero and negative flags as appropriate.
 //
 //         C 	Carry Flag 	  Not affected
@@ -821,7 +821,7 @@ func (cpu *M6502) Tay() {
 	cpu.transfer(cpu.Registers.A, &cpu.Registers.Y)
 }
 
-// Copies the current contents of the X register into the accumulator
+// Txa copies the current contents of the X register into the accumulator
 // and sets the zero and negative flags as appropriate.
 //
 //         C 	Carry Flag 	  Not affected
@@ -835,7 +835,7 @@ func (cpu *M6502) Txa() {
 	cpu.transfer(cpu.Registers.X, &cpu.Registers.A)
 }
 
-// Copies the current contents of the Y register into the accumulator
+// Tya copies the current contents of the Y register into the accumulator
 // and sets the zero and negative flags as appropriate.
 //
 //         C 	Carry Flag 	  Not affected
@@ -849,7 +849,7 @@ func (cpu *M6502) Tya() {
 	cpu.transfer(cpu.Registers.Y, &cpu.Registers.A)
 }
 
-// Copies the current contents of the stack register into the X
+// Tsx copies the current contents of the stack register into the X
 // register and sets the zero and negative flags as appropriate.
 //
 //         C 	Carry Flag 	  Not affected
@@ -863,7 +863,7 @@ func (cpu *M6502) Tsx() {
 	cpu.transfer(cpu.Registers.SP, &cpu.Registers.X)
 }
 
-// Copies the current contents of the X register into the stack
+// Txs copies the current contents of the X register into the stack
 // register.
 //
 //         C 	Carry Flag 	  Not affected
@@ -901,7 +901,7 @@ func (cpu *M6502) pull16() (value uint16) {
 	return
 }
 
-// Pushes a copy of the accumulator on to the stack.
+// Pha pushes a copy of the accumulator on to the stack.
 //
 //         C 	Carry Flag 	  Not affected
 //         Z 	Zero Flag 	  Not affected
@@ -914,7 +914,7 @@ func (cpu *M6502) Pha() {
 	cpu.push(cpu.Registers.A)
 }
 
-// Pushes a copy of the status flags on to the stack.
+// Php pushes a copy of the status flags on to the stack.
 //
 //         C 	Carry Flag 	  Not affected
 //         Z 	Zero Flag 	  Not affected
@@ -927,7 +927,7 @@ func (cpu *M6502) Php() {
 	cpu.push(uint8(cpu.Registers.P | B | U))
 }
 
-// Pulls an 8 bit value from the stack and into the accumulator. The
+// Pla pulls an 8 bit value from the stack and into the accumulator. The
 // zero and negative flags are set as appropriate.
 //
 //         C 	Carry Flag 	  Not affected
@@ -941,7 +941,7 @@ func (cpu *M6502) Pla() {
 	cpu.Registers.A = cpu.setZNFlags(cpu.pull())
 }
 
-// Pulls an 8 bit value from the stack and into the processor
+// Plp pulls an 8 bit value from the stack and into the processor
 // flags. The flags will take on new states as determined by the value
 // pulled.
 //
@@ -956,7 +956,7 @@ func (cpu *M6502) Plp() {
 	cpu.Registers.P = Status(cpu.pull()) & ^(B | U)
 }
 
-// A logical AND is performed, bit by bit, on the accumulator contents
+// And; A logical AND is performed, bit by bit, on the accumulator contents
 // using the contents of a byte of memory.
 //
 //         C 	Carry Flag 	  Not affected
@@ -981,7 +981,7 @@ func (cpu *M6502) And(address uint16) {
 	cpu.Registers.A = cpu.setZNFlags(cpu.Registers.A & value)
 }
 
-// An exclusive OR is performed, bit by bit, on the accumulator
+// Eor; An exclusive OR is performed, bit by bit, on the accumulator
 // contents using the contents of a byte of memory.
 //
 //         C 	Carry Flag 	  Not affected
@@ -1006,7 +1006,7 @@ func (cpu *M6502) Eor(address uint16) {
 	cpu.Registers.A = cpu.setZNFlags(cpu.Registers.A ^ value)
 }
 
-// An inclusive OR is performed, bit by bit, on the accumulator
+// Ora; An inclusive OR is performed, bit by bit, on the accumulator
 // contents using the contents of a byte of memory.
 //
 //         C 	Carry Flag 	  Not affected
@@ -1031,7 +1031,7 @@ func (cpu *M6502) Ora(address uint16) {
 	cpu.Registers.A = cpu.setZNFlags(cpu.Registers.A | value)
 }
 
-// This instructions is used to test if one or more bits are set in a
+// Bit instructions is used to test if one or more bits are set in a
 // target memory location. The mask pattern in A is ANDed with the
 // value in memory to set or clear the zero flag, but the result is
 // not kept. Bits 7 and 6 of the value from memory are copied into the
@@ -1084,7 +1084,7 @@ func (cpu *M6502) addition(value uint16) {
 	}
 }
 
-// This instruction adds the contents of a memory location to the
+// Adc; instruction adds the contents of a memory location to the
 // accumulator together with the carry bit. If overflow occurs the
 // carry bit is set, this enables multiple byte addition to be
 // performed.
@@ -1111,7 +1111,7 @@ func (cpu *M6502) Adc(address uint16) {
 	cpu.addition(value)
 }
 
-// This instruction subtracts the contents of a memory location to the
+// Sbc; instruction subtracts the contents of a memory location to the
 // accumulator together with the not of the carry bit. If overflow
 // occurs the carry bit is clear, this enables multiple byte
 // subtraction to be performed.
@@ -1158,7 +1158,7 @@ func (cpu *M6502) compare(value uint16, register uint8) {
 	cpu.setZNFlags(uint8(cpu.setCFlagAddition(uint16(register) + value)))
 }
 
-// Unofficial
+// Dcp; Unofficial
 func (cpu *M6502) Dcp(address uint16) {
 	value := cpu.Memory.Fetch(address)
 
@@ -1178,7 +1178,7 @@ func (cpu *M6502) Dcp(address uint16) {
 	cpu.decode.enabled = enabled
 }
 
-// Unofficial
+// Isb; Unofficial
 func (cpu *M6502) Isb(address uint16) {
 	value := cpu.Memory.Fetch(address)
 
@@ -1198,7 +1198,7 @@ func (cpu *M6502) Isb(address uint16) {
 	cpu.decode.enabled = enabled
 }
 
-// Unofficial
+// Slo; Unofficial
 func (cpu *M6502) Slo(address uint16) {
 	value := cpu.Memory.Fetch(address)
 
@@ -1218,7 +1218,7 @@ func (cpu *M6502) Slo(address uint16) {
 	cpu.decode.enabled = enabled
 }
 
-// Unofficial
+// Rla; Unofficial
 func (cpu *M6502) Rla(address uint16) {
 	value := cpu.Memory.Fetch(address)
 
@@ -1238,7 +1238,7 @@ func (cpu *M6502) Rla(address uint16) {
 	cpu.decode.enabled = enabled
 }
 
-// Unofficial
+// Sre; Unofficial
 func (cpu *M6502) Sre(address uint16) {
 	value := cpu.Memory.Fetch(address)
 
@@ -1258,7 +1258,7 @@ func (cpu *M6502) Sre(address uint16) {
 	cpu.decode.enabled = enabled
 }
 
-// Unofficial
+// Rra; Unofficial
 func (cpu *M6502) Rra(address uint16) {
 	value := cpu.Memory.Fetch(address)
 
@@ -1278,7 +1278,7 @@ func (cpu *M6502) Rra(address uint16) {
 	cpu.decode.enabled = enabled
 }
 
-// This instruction compares the contents of the accumulator with
+// Cmp; instruction compares the contents of the accumulator with
 // another memory held value and sets the zero and carry flags as
 // appropriate.
 //
@@ -1294,7 +1294,7 @@ func (cpu *M6502) Cmp(address uint16) {
 	cpu.compare(value, cpu.Registers.A)
 }
 
-// This instruction compares the contents of the X register with
+// Cpx; instruction compares the contents of the X register with
 // another memory held value and sets the zero and carry flags as
 // appropriate.
 //
@@ -1310,7 +1310,7 @@ func (cpu *M6502) Cpx(address uint16) {
 	cpu.compare(value, cpu.Registers.X)
 }
 
-// This instruction compares the contents of the Y register with
+// Cpy; instruction compares the contents of the Y register with
 // another memory held value and sets the zero and carry flags as
 // appropriate.
 //
@@ -1326,7 +1326,7 @@ func (cpu *M6502) Cpy(address uint16) {
 	cpu.compare(value, cpu.Registers.Y)
 }
 
-// Adds one to the value held at a specified memory location setting
+// Inc adds one to the value held at a specified memory location setting
 // the zero and negative flags as appropriate.
 //
 //         C 	Carry Flag 	  Not affected
@@ -1355,7 +1355,7 @@ func (cpu *M6502) increment(register *uint8) {
 	*register = cpu.setZNFlags(*register + 1)
 }
 
-// Adds one to the X register setting the zero and negative flags as
+// Inx adds one to the X register setting the zero and negative flags as
 // appropriate.
 //
 //         C 	Carry Flag 	  Not affected
@@ -1369,7 +1369,7 @@ func (cpu *M6502) Inx() {
 	cpu.increment(&cpu.Registers.X)
 }
 
-// Adds one to the Y register setting the zero and negative flags as
+// Iny adds one to the Y register setting the zero and negative flags as
 // appropriate.
 //
 //         C 	Carry Flag 	  Not affected
@@ -1383,7 +1383,7 @@ func (cpu *M6502) Iny() {
 	cpu.increment(&cpu.Registers.Y)
 }
 
-// Subtracts one from the value held at a specified memory location
+// Dec subtracts one from the value held at a specified memory location
 // setting the zero and negative flags as appropriate.
 //
 //         C 	Carry Flag 	  Not affected
@@ -1412,7 +1412,7 @@ func (cpu *M6502) decrement(register *uint8) {
 	*register = cpu.setZNFlags(*register - 1)
 }
 
-// Subtracts one from the X register setting the zero and negative
+// Dex subtracts one from the X register setting the zero and negative
 // flags as appropriate.
 //
 //         C 	Carry Flag 	  Not affected
@@ -1426,7 +1426,7 @@ func (cpu *M6502) Dex() {
 	cpu.decrement(&cpu.Registers.X)
 }
 
-// Subtracts one from the Y register setting the zero and negative
+// Dey subtracts one from the Y register setting the zero and negative
 // flags as appropriate.
 //
 //         C 	Carry Flag 	  Not affected
@@ -1474,7 +1474,7 @@ func (cpu *M6502) shift(direction direction, value uint8, store func(uint8)) {
 	store(cpu.setZNFlags(value))
 }
 
-// This operation shifts all the bits of the accumulator one bit
+// AslA; operation shifts all the bits of the accumulator one bit
 // left. Bit 0 is set to 0 and bit 7 is placed in the carry flag. The
 // effect of this operation is to multiply the memory contents by 2
 // (ignoring 2's complement considerations), setting the carry if the
@@ -1495,7 +1495,7 @@ func (cpu *M6502) AslA() {
 	}
 }
 
-// This operation shifts all the bits of the memory contents one bit
+// Asl; operation shifts all the bits of the memory contents one bit
 // left. Bit 0 is set to 0 and bit 7 is placed in the carry flag. The
 // effect of this operation is to multiply the memory contents by 2
 // (ignoring 2's complement considerations), setting the carry if the
@@ -1512,7 +1512,7 @@ func (cpu *M6502) Asl(address uint16) {
 	cpu.shift(left, cpu.Memory.Fetch(address), func(value uint8) { cpu.Memory.Store(address, value) })
 }
 
-// Each of the bits in A is shift one place to the right. The bit that
+// LsrA; Each of the bits in A is shift one place to the right. The bit that
 // was in bit 0 is shifted into the carry flag. Bit 7 is set to zero.
 //
 //         C 	Carry Flag 	  Set to contents of old bit 0
@@ -1530,7 +1530,7 @@ func (cpu *M6502) LsrA() {
 	}
 }
 
-// Each of the bits in M is shift one place to the right. The bit that
+// Lsr; Each of the bits in M is shift one place to the right. The bit that
 // was in bit 0 is shifted into the carry flag. Bit 7 is set to zero.
 //
 //         C 	Carry Flag 	  Set to contents of old bit 0
@@ -1571,7 +1571,7 @@ func (cpu *M6502) rotate(direction direction, value uint8, store func(uint8)) {
 	store(cpu.setZNFlags(value))
 }
 
-// Move each of the bits in A one place to the left. Bit 0 is filled
+// RolA; Move each of the bits in A one place to the left. Bit 0 is filled
 // with the current value of the carry flag whilst the old bit 7
 // becomes the new carry flag value.
 //
@@ -1590,7 +1590,7 @@ func (cpu *M6502) RolA() {
 	}
 }
 
-// Move each of the bits in A one place to the left. Bit 0 is filled
+// Rol; Move each of the bits in A one place to the left. Bit 0 is filled
 // with the current value of the carry flag whilst the old bit 7
 // becomes the new carry flag value.
 //
@@ -1605,7 +1605,7 @@ func (cpu *M6502) Rol(address uint16) {
 	cpu.rotate(left, cpu.Memory.Fetch(address), func(value uint8) { cpu.Memory.Store(address, value) })
 }
 
-// Move each of the bits in A one place to the right. Bit 7 is filled
+// RorA; Move each of the bits in A one place to the right. Bit 7 is filled
 // with the current value of the carry flag whilst the old bit 0
 // becomes the new carry flag value.
 //
@@ -1624,7 +1624,7 @@ func (cpu *M6502) RorA() {
 	}
 }
 
-// Move each of the bits in M one place to the right. Bit 7 is filled
+// Ror; Move each of the bits in M one place to the right. Bit 7 is filled
 // with the current value of the carry flag whilst the old bit 0
 // becomes the new carry flag value.
 //
@@ -1639,7 +1639,7 @@ func (cpu *M6502) Ror(address uint16) {
 	cpu.rotate(right, cpu.Memory.Fetch(address), func(value uint8) { cpu.Memory.Store(address, value) })
 }
 
-// Sets the program counter to the address specified by the operand.
+// Jmp sets the program counter to the address specified by the operand.
 //
 //         C 	Carry Flag 	  Not affected
 //         Z 	Zero Flag 	  Not affected
@@ -1659,7 +1659,7 @@ func (cpu *M6502) Jmp(address uint16) {
 	cpu.Registers.PC = address
 }
 
-// The JSR instruction pushes the address (minus one) of the return
+// Jsr; instruction pushes the address (minus one) of the return
 // point on to the stack and then sets the program counter to the
 // target memory address.
 //
@@ -1682,7 +1682,7 @@ func (cpu *M6502) Jsr(address uint16) {
 	cpu.Registers.PC = address
 }
 
-// The RTS instruction is used at the end of a subroutine to return to
+// Rts; instruction is used at the end of a subroutine to return to
 // the calling routine. It pulls the program counter (minus one) from
 // the stack.
 //
@@ -1709,7 +1709,7 @@ func (cpu *M6502) branch(address uint16, condition func() bool, status *Instruct
 	}
 }
 
-// If the carry flag is clear then add the relative displacement to
+// Bcc; If the carry flag is clear then add the relative displacement to
 // the program counter to cause a branch to a new location.
 //
 //         C 	Carry Flag 	  Not affected
@@ -1723,7 +1723,7 @@ func (cpu *M6502) Bcc(address uint16, status *InstructionStatus) {
 	cpu.branch(address, func() bool { return cpu.Registers.P&C == 0 }, status)
 }
 
-// If the carry flag is set then add the relative displacement to the
+// Bcs; If the carry flag is set then add the relative displacement to the
 // program counter to cause a branch to a new location.
 //
 //         C 	Carry Flag 	  Not affected
@@ -1737,7 +1737,7 @@ func (cpu *M6502) Bcs(address uint16, status *InstructionStatus) {
 	cpu.branch(address, func() bool { return cpu.Registers.P&C != 0 }, status)
 }
 
-// If the zero flag is set then add the relative displacement to the
+// Beq; If the zero flag is set then add the relative displacement to the
 // program counter to cause a branch to a new location.
 //
 //         C 	Carry Flag 	  Not affected
@@ -1751,7 +1751,7 @@ func (cpu *M6502) Beq(address uint16, status *InstructionStatus) {
 	cpu.branch(address, func() bool { return cpu.Registers.P&Z != 0 }, status)
 }
 
-// If the negative flag is set then add the relative displacement to
+// Bmi; If the negative flag is set then add the relative displacement to
 // the program counter to cause a branch to a new location.
 //
 //         C 	Carry Flag 	  Not affected
@@ -1765,7 +1765,7 @@ func (cpu *M6502) Bmi(address uint16, status *InstructionStatus) {
 	cpu.branch(address, func() bool { return cpu.Registers.P&N != 0 }, status)
 }
 
-// If the zero flag is clear then add the relative displacement to the
+// Bne; If the zero flag is clear then add the relative displacement to the
 // program counter to cause a branch to a new location.
 //
 //         C 	Carry Flag 	  Not affected
@@ -1779,7 +1779,7 @@ func (cpu *M6502) Bne(address uint16, status *InstructionStatus) {
 	cpu.branch(address, func() bool { return cpu.Registers.P&Z == 0 }, status)
 }
 
-// If the negative flag is clear then add the relative displacement to
+// Bpl; If the negative flag is clear then add the relative displacement to
 // the program counter to cause a branch to a new location.
 //
 //         C 	Carry Flag 	  Not affected
@@ -1793,7 +1793,7 @@ func (cpu *M6502) Bpl(address uint16, status *InstructionStatus) {
 	cpu.branch(address, func() bool { return cpu.Registers.P&N == 0 }, status)
 }
 
-// If the overflow flag is clear then add the relative displacement to
+// Bvc; If the overflow flag is clear then add the relative displacement to
 // the program counter to cause a branch to a new location.
 //
 //         C 	Carry Flag 	  Not affected
@@ -1807,7 +1807,7 @@ func (cpu *M6502) Bvc(address uint16, status *InstructionStatus) {
 	cpu.branch(address, func() bool { return cpu.Registers.P&V == 0 }, status)
 }
 
-// If the overflow flag is set then add the relative displacement to
+// Bvs; If the overflow flag is set then add the relative displacement to
 // the program counter to cause a branch to a new location.
 //
 //         C 	Carry Flag 	  Not affected
@@ -1821,7 +1821,7 @@ func (cpu *M6502) Bvs(address uint16, status *InstructionStatus) {
 	cpu.branch(address, func() bool { return cpu.Registers.P&V != 0 }, status)
 }
 
-// Set the carry flag to zero.
+// Clc; Set the carry flag to zero.
 //
 //         C 	Carry Flag 	  Set to 0
 //         Z 	Zero Flag 	  Not affected
@@ -1834,7 +1834,7 @@ func (cpu *M6502) Clc() {
 	cpu.Registers.P &^= C
 }
 
-// Set the decimal mode flag to zero.
+// Cld; Set the decimal mode flag to zero.
 //
 //         C 	Carry Flag 	  Not affected
 //         Z 	Zero Flag 	  Not affected
@@ -1847,7 +1847,7 @@ func (cpu *M6502) Cld() {
 	cpu.Registers.P &^= D
 }
 
-// Clears the interrupt disable flag allowing normal interrupt
+// Cli clears the interrupt disable flag allowing normal interrupt
 // requests to be serviced.
 //
 //         C 	Carry Flag 	  Not affected
@@ -1861,7 +1861,7 @@ func (cpu *M6502) Cli() {
 	cpu.Registers.P &^= I
 }
 
-// Clears the interrupt disable flag allowing normal interrupt
+// Clv clears the interrupt disable flag allowing normal interrupt
 // requests to be serviced.
 //
 //         C 	Carry Flag 	  Not affected
@@ -1875,7 +1875,7 @@ func (cpu *M6502) Clv() {
 	cpu.Registers.P &^= V
 }
 
-// Set the carry flag to one.
+// Sec; Set the carry flag to one.
 //
 //         C 	Carry Flag 	  Set to 1
 //         Z 	Zero Flag 	  Not affected
@@ -1888,7 +1888,7 @@ func (cpu *M6502) Sec() {
 	cpu.Registers.P |= C
 }
 
-// Set the decimal mode flag to one.
+// Sed; Set the decimal mode flag to one.
 //
 //         C 	Carry Flag 	  Not affected
 //         Z 	Zero Flag 	  Not affected
@@ -1901,7 +1901,7 @@ func (cpu *M6502) Sed() {
 	cpu.Registers.P |= D
 }
 
-// Set the interrupt disable flag to one.
+// Sei; Set the interrupt disable flag to one.
 //
 //         C 	Carry Flag 	  Not affected
 //         Z 	Zero Flag 	  Not affected
@@ -1914,7 +1914,7 @@ func (cpu *M6502) Sei() {
 	cpu.Registers.P |= I
 }
 
-// The BRK instruction forces the generation of an interrupt
+// Brk; instruction forces the generation of an interrupt
 // request. The program counter and processor status are pushed on the
 // stack then the IRQ interrupt vector at $FFFE/F is loaded into the
 // PC and the break flag in the status set to one.
@@ -1940,7 +1940,7 @@ func (cpu *M6502) Brk() {
 	cpu.Registers.PC = (uint16(high) << 8) | uint16(low)
 }
 
-// The NOP instruction causes no changes to the processor other than
+// Nop; instruction causes no changes to the processor other than
 // the normal incrementing of the program counter to the next
 // instruction.
 //
@@ -1954,7 +1954,7 @@ func (cpu *M6502) Brk() {
 func (cpu *M6502) Nop() {
 }
 
-// Unofficial
+// NopAddress; Unofficial
 //
 // The NOP instruction causes no changes to the processor other than
 // the normal incrementing of the program counter to the next
@@ -1980,25 +1980,25 @@ func (cpu *M6502) NopAddress(address uint16) {
 	}
 }
 
-// Unofficial
+// Anc; Unofficial
 func (cpu *M6502) Anc(address uint16) {
 	cpu.And(address)
 	cpu.Registers.P = (cpu.Registers.P & ^C) | cpu.Registers.P>>7
 }
 
-// Unofficial
+// Alr; Unofficial
 func (cpu *M6502) Alr(address uint16) {
 	cpu.And(address)
 	cpu.LsrA()
 }
 
-// Unofficial
+// Arr; Unofficial
 func (cpu *M6502) Arr(address uint16) {
 	cpu.And(address)
 	cpu.RorA()
 }
 
-// Unofficial
+// Axs; Unofficial
 func (cpu *M6502) Axs(address uint16) {
 	value := cpu.Memory.Fetch(address)
 	cpu.Registers.X &= cpu.Registers.A
@@ -2006,17 +2006,17 @@ func (cpu *M6502) Axs(address uint16) {
 	cpu.Registers.X -= value
 }
 
-// Unofficial
+// Shy; Unofficial
 func (cpu *M6502) Shy(address uint16) {
 	cpu.Memory.Fetch(address)
 }
 
-// Unofficial
+// Shx; Unofficial
 func (cpu *M6502) Shx(address uint16) {
 	cpu.Memory.Fetch(address)
 }
 
-// The RTI instruction is used at the end of an interrupt processing
+// Rti; instruction is used at the end of an interrupt processing
 // routine. It pulls the processor flags from the stack followed by
 // the program counter.
 //

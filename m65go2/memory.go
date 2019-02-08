@@ -20,7 +20,7 @@ type BasicMemory struct {
 	DisableWrites bool
 }
 
-// Returns a pointer to a new BasicMemory with all memory initialized
+// NewBasicMemory returns a pointer to a new BasicMemory with all memory initialized
 // to zero.
 func NewBasicMemory(size uint32) *BasicMemory {
 	return &BasicMemory{
@@ -28,14 +28,14 @@ func NewBasicMemory(size uint32) *BasicMemory {
 	}
 }
 
-// Resets all memory locations to zero
+// Reset; all memory locations to zero
 func (mem *BasicMemory) Reset() {
 	for i := range mem.M {
 		mem.M[i] = 0xff
 	}
 }
 
-// Returns the value stored at the given memory address
+// Fetch returns the value stored at the given memory address
 func (mem *BasicMemory) Fetch(address uint16) (value uint8) {
 	if mem.DisableReads {
 		value = 0xff
@@ -46,7 +46,7 @@ func (mem *BasicMemory) Fetch(address uint16) (value uint8) {
 	return
 }
 
-// Stores the value at the given memory address
+// Store; the value at the given memory address
 func (mem *BasicMemory) Store(address uint16, value uint8) (oldValue uint8) {
 	if !mem.DisableWrites {
 		oldValue = mem.M[address]
@@ -56,7 +56,7 @@ func (mem *BasicMemory) Store(address uint16, value uint8) (oldValue uint8) {
 	return
 }
 
-// Returns true iff the two addresses are located in the same page in
+// SamePage returns true iff the two addresses are located in the same page in
 // memory.  Two addresses are on the same page if their high bytes are
 // both the same, i.e. 0x0101 and 0x0103 are on the same page but
 // 0x0101 and 0203 are not.
